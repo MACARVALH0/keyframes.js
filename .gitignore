@@ -1,0 +1,17 @@
+# Arquivos do VS Code
+.vscode/
+*.code-workspace
+
+# Configurações do usuário do VS Code
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Arquivos de estado do workspace
+.vscode/state.vscdb
+.vscode/state.vscdb.lock
+
+# Arquivos pessoais de teste
+teste.js
+teste.html
