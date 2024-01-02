@@ -26,12 +26,14 @@
   Após ser criada, a classe retorna um <b>Objeto de Animação</b>, que pode conter os métodos <code>start()</code> e <code>finish()</code> ou o método <code>play()</code>, dependendo do parâmetro <code>is_infinite</code> citado acima.
 </p>
 
-<p>Especificação dos métodos:</p>
+<p><b>Especificação dos métodos:</b></p>
 
 **`start()`**: Inicia o loop de animação, que se repete indefinidamente, até que a função `finish()` seja chamada.<br>
 **`finish()`**: Encerra o loop de animação.<br>
+<br>
 **`play(iteration_count)`**: Inicia o loop de animação com um parâmetro `iteration_count` do tipo inteiro, apontando o número de vezes que o loop deve se repetir. Caso `iteration_count` não seja especificado, assume o valor `1` como padrão.<br>
 
 
+<h2>Objeto de Keyframe</h2>
 
 <p>🔧 Em construção... 🔨</p>
