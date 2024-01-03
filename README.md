@@ -35,5 +35,41 @@
 
 
 <h2>Objeto de Keyframe</h2>
+<p>
+  O <b>objeto de keyframes</b> descreve a estrutura lógica da animação em um modelo similar ao nativo na linguagem CSS. A forma como é escrito, no entanto, se assemelha muito ao formato de JSON, uma vez que usa diretamente características típicas da notação de objetos em JavaScript.
+  No objeto, tanto as marcações de tempo quanto nomes de propriedade e seus respectivos valores são strings, como no exemplo a seguir: <br>
+  
+```javascript
+keyframe_obj_example =
+{
+  "25%": 
+  {
+      "background-color": "rgb(255 0 0)",
+      "transform": "rotate(10deg)"
+  },
+  
+  "50%":
+  {
+      "background-color": "rgb(0 255 0)",
+      "transform": "rotate(-10deg)"
+  },
+  
+  "75%":
+  {
+      "background-color": "rgb(0 0 255)",
+      "transform": "rotate(10deg)"
+  },
+  
+  "100%":
+  {
+      "background-color": "rgb(0 0 0)",
+      "transform": "rotate(-10deg)"
+  }
+}
+```
+
+Este seria um possível argumento para o parâmetro `keyframe_struct` no objeto de configuração passado ao construtor.
+Importante perceber que os nomes das propriedades CSS são escritos da forma convencional, e não em sua adaptação em camel case, como no caso de propriedades do construtor CSSStyleDeclaration (Por exemplo, escreve-se "background-color ao invés de "backgroundColor").
+</p>
 
 <p>🔧 Em construção... 🔨</p>
