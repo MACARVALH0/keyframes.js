@@ -33,7 +33,7 @@
 <br>
 **`play(iteration_count)`**: Inicia o loop de animação com um parâmetro `iteration_count` do tipo inteiro, apontando o número de vezes que o loop deve se repetir. Caso `iteration_count` não seja especificado, assume o valor `1` como padrão.<br>
 
-
+<br>
 <h2>Objeto de Keyframe</h2>
 <p>
   O <b>objeto de keyframes</b> descreve a estrutura lógica da animação em um modelo similar ao nativo na linguagem CSS. A forma como é escrito, no entanto, se assemelha muito ao formato de JSON, uma vez que usa diretamente características típicas da notação de objetos em JavaScript.
