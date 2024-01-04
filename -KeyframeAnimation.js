@@ -29,7 +29,7 @@ class KeyframeAnimation
         // this.repeat_initial_state = params.repeat_initial_state && ['end', 'always', 'none'].includes(params.repeat_initial_state) ? params.repeat_initial_state : 'end';
 
         this.is_infinite = params.is_infinite || false;
-        this.animation_duration = params.animation_duration || 2000;
+        this.animation_duration = parseInt(params.animation_duration) || 2000;
 
         this.timestamp_functions = this.getTimestampFunctions(this.animation_duration);
         this.animation_object = this.getAnimationObject();
@@ -159,7 +159,7 @@ class KeyframeAnimation
         {
             return {
 
-                play:
+                start:
                 function()
                 {
                     for(let action of timestamp_functions){action()}
@@ -184,7 +184,7 @@ class KeyframeAnimation
             return {
 
                 play:
-                function(iteration_count)
+                function(iteration_count = 1)
                 {
                     let i = 0;
 
