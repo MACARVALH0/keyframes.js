@@ -31,7 +31,7 @@ class KeyframeAnimation
         this.is_infinite = params.is_infinite || false;
         this.animation_duration = parseInt(params.animation_duration) || 2000;
 
-        this.timestamp_functions = this.getTimestampFunctions(this.animation_duration);
+        this.timestamp_functions = this.getTimestampFunctions(this.animation_duration)
         this.animation_object = this.getAnimationObject();
 
         console.timeEnd('obj-creation');
@@ -97,10 +97,10 @@ class KeyframeAnimation
         {return () => {setTimeout(() => { for(let change of property_change_functions){ change(); } }, timer);}}
         function restoreInitialStateFunction(element, original_states, timer)
         {
-            return function()
+            return function(transition_duration)
             {
                 setTimeout(()=>{
-                    element.style.setProperty('transition-duration', '10ms');
+                    element.style.setProperty('transition-duration', `${transition_duration || 10}ms`);
                     original_states.forEach
                     ((value, property) => {element.style.setProperty(property, value)});
                 }, timer);
@@ -150,10 +150,12 @@ class KeyframeAnimation
 
     getAnimationObject()
     {
+        const animation_duration = this.animation_duration;
         var animation_ID;
 
         const timestamp_functions = this.timestamp_functions;
-        const animation_duration = this.animation_duration;
+        const return_to_initial = timestamp_functions.pop();
+
         
         if(this.is_infinite)
         {
@@ -162,21 +164,28 @@ class KeyframeAnimation
                 start:
                 function()
                 {
+                    if(animation_ID){return;}
+
                     for(let action of timestamp_functions){action()}
-                    // return setInterval(()=>
+
                     animation_ID = setInterval(()=>
                     {
-                        console.log("Loop de atualização...");
                         for(let action of timestamp_functions){action()}
                     }, animation_duration);
                 },
 
                 finish:
-                function()
+                function(transition_duration)
                 {
-                    clearInterval(animation_ID);
-                    animation_ID = undefined;
-                    timestamp_functions[timestamp_functions.length-1]();
+                    if(animation_ID)
+                    {
+                        clearInterval(animation_ID);
+                        animation_ID = undefined;
+
+                        return_to_initial(transition_duration);
+                    }
+
+                    else{return;}
         }}}
 
         else
@@ -184,7 +193,7 @@ class KeyframeAnimation
             return {
 
                 play:
-                function(iteration_count = 1)
+                function(iteration_count = 1, finishing_transition_duration)
                 {
                     let i = 0;
 
