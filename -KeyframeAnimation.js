@@ -193,7 +193,7 @@ class KeyframeAnimation
             return {
 
                 play:
-                function(iteration_count = 1, finishing_transition_duration)
+                function(iteration_count = 1)
                 {
                     let i = 0;
 
