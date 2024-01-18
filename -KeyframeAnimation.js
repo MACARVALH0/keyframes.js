@@ -99,7 +99,8 @@ class KeyframeAnimation
         {
             return function(transition_duration)
             {
-                setTimeout(()=>{
+                // setTimeout(()=>{
+                setInterval(()=>{
                     element.style.setProperty('transition-duration', `${transition_duration || 10}ms`);
                     original_states.forEach
                     ((value, property) => {element.style.setProperty(property, value)});
@@ -151,7 +152,9 @@ class KeyframeAnimation
     getAnimationObject()
     {
         const animation_duration = this.animation_duration;
-        var animation_ID;
+        var animation_ID; // deprecated
+
+        var animation_IDs = [];
 
         const timestamp_functions = this.timestamp_functions;
         const return_to_initial = timestamp_functions.pop();
@@ -166,23 +169,33 @@ class KeyframeAnimation
                 {
                     if(animation_ID){return;}
 
-                    for(let action of timestamp_functions){action()}
-
-                    animation_ID = setInterval(()=>
+                    console.log(timestamp_functions);
+                    
+                    for(let action of timestamp_functions)
                     {
-                        for(let action of timestamp_functions){action()}
-                    }, animation_duration);
+                        animation_IDs.push(action());
+                    }
+                    // for(let action of timestamp_functions){action()}
+
+                    // animation_ID = setInterval(()=>
+                    // {
+                    //     for(let action of timestamp_functions){action()}
+                    // }, animation_duration);
                 },
 
                 finish:
                 function(transition_duration)
                 {
-                    if(animation_ID)
+                    if(animation_IDs[0])
                     {
-                        clearInterval(animation_ID);
-                        animation_ID = undefined;
+                        for(let id of animation_IDs)
+                        {
+                            clearTimeout()
+                        }
+                        // clearInterval(animation_ID);
+                        // animation_ID = undefined;
 
-                        return_to_initial(transition_duration);
+                        // return_to_initial(transition_duration);
                     }
 
                     else{return;}
