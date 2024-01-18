@@ -143,7 +143,7 @@ class KeyframeAnimation
         // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
         if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(dom_element, this.initial_CSS_properties_values, 100)); }
 
-
+        
         return timestamp_functions;
     }
 
@@ -184,7 +184,7 @@ class KeyframeAnimation
                         clearInterval(animation_interval_ID);
                         for(let id of animations_IDs){clearTimeout(id);}
 
-                        // Cleans registers for both `setInterval` and `setTimeout` functions IDs
+                        // Cleans registers for both `setInterval` and `setTimeout` functions respective IDs
                         animation_interval_ID = undefined;
                         animations_IDs = [];
 

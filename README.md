@@ -69,7 +69,7 @@ keyframe_obj_example =
 ```
 
 Este seria um possível argumento para o parâmetro `keyframe_struct` no objeto de configuração passado ao construtor.
-Importante perceber que os nomes das propriedades CSS são escritos da forma convencional, e não em sua adaptação em camel case, como no caso de propriedades do construtor CSSStyleDeclaration (Por exemplo, escreve-se "background-color ao invés de "backgroundColor").
+Importante perceber que os nomes das propriedades CSS são escritos da forma convencional, e não na sua adaptação em camel case, como no caso de propriedades do construtor CSSStyleDeclaration (Por exemplo, escreve-se "background-color ao invés de "backgroundColor").
 </p>
 
 <p>🔧 Em construção... 🔨</p>
