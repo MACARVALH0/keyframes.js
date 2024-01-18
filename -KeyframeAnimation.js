@@ -94,13 +94,12 @@ class KeyframeAnimation
         // These functions serve for organization purpose.
         function newStyleAttribFunction(element, p, v){return ()=>{element.style.setProperty(p, v)}}
         function newTimeoutFunction(property_change_functions, timer)
-        {return () => {setTimeout(() => { for(let change of property_change_functions){ change(); } }, timer);}}
+        {return () => setTimeout(() => { for(let change of property_change_functions){ change(); } }, timer);}
         function restoreInitialStateFunction(element, original_states, timer)
         {
             return function(transition_duration)
             {
-                // setTimeout(()=>{
-                setInterval(()=>{
+                setTimeout(()=>{
                     element.style.setProperty('transition-duration', `${transition_duration || 10}ms`);
                     original_states.forEach
                     ((value, property) => {element.style.setProperty(property, value)});
@@ -142,7 +141,7 @@ class KeyframeAnimation
 
 
         // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
-        if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(dom_element, this.initial_CSS_properties_values, current_timestamp)); }
+        if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(dom_element, this.initial_CSS_properties_values, 100)); }
 
 
         return timestamp_functions;
@@ -152,9 +151,8 @@ class KeyframeAnimation
     getAnimationObject()
     {
         const animation_duration = this.animation_duration;
-        var animation_ID; // deprecated
-
-        var animation_IDs = [];
+        var animation_interval_ID;
+        var animations_IDs = [];
 
         const timestamp_functions = this.timestamp_functions;
         const return_to_initial = timestamp_functions.pop();
@@ -167,35 +165,30 @@ class KeyframeAnimation
                 start:
                 function()
                 {
-                    if(animation_ID){return;}
+                    if(animation_interval_ID){return;}
 
-                    console.log(timestamp_functions);
-                    
-                    for(let action of timestamp_functions)
+                    for(let action of timestamp_functions){animations_IDs.push(action())}
+                    console.log(animations_IDs);
+
+                    animation_interval_ID = setInterval(()=>
                     {
-                        animation_IDs.push(action());
-                    }
-                    // for(let action of timestamp_functions){action()}
-
-                    // animation_ID = setInterval(()=>
-                    // {
-                    //     for(let action of timestamp_functions){action()}
-                    // }, animation_duration);
+                        for(let action of timestamp_functions){action()}
+                    }, animation_duration);
                 },
 
                 finish:
                 function(transition_duration)
                 {
-                    if(animation_IDs[0])
+                    if(animation_interval_ID)
                     {
-                        for(let id of animation_IDs)
-                        {
-                            clearTimeout()
-                        }
-                        // clearInterval(animation_ID);
-                        // animation_ID = undefined;
+                        clearInterval(animation_interval_ID);
+                        for(let id of animations_IDs){clearTimeout(id);}
 
-                        // return_to_initial(transition_duration);
+                        // Cleans registers for both `setInterval` and `setTimeout` functions IDs
+                        animation_interval_ID = undefined;
+                        animations_IDs = [];
+
+                        return_to_initial(transition_duration || 100);
                     }
 
                     else{return;}
