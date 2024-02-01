@@ -93,20 +93,12 @@ class KeyframeAnimation
         }
 
 
-        let timer_test = 0;
         // Factory functions
         // These functions serve for organization purpose.
         function newStyleAttribFunction(element, p, v){return ()=>{element.style.setProperty(p, v);}}
-        
+
         function newTimeoutFunction(property_change_functions, timer = 100)
-        {
-                // debug
-                // timer_test++;
-                // console.log(`\nFunção ${timer_test} programada com timer de ${timer}ms.`);
-                // console.log(`Função ${timer_test} deve ocorrer de ${timer}ms até ${timer+transition_duration}ms.`);
-            
-            return () => setTimeout(() => { console.log("executando função"); for(let change of property_change_functions){ change(); } }, timer);
-        }
+        {return () => setTimeout(() => {for(let change of property_change_functions){ change(); } }, timer);}
         
         function restoreInitialStateFunction(element, original_states, timer)
         {
@@ -158,21 +150,13 @@ class KeyframeAnimation
             // Executes as a setTimeout() function, looping through all property changes.
             timestamp_functions.push(newTimeoutFunction(property_change_functions, previous_timestamp));
             
-            
-                // debug
-                // console.log(`Transition duration: ${transition_duration}`);
-                // console.log(`Previous timestamp: ${previous_timestamp}.\nCurrent timestamp: ${current_timestamp}.\n`)
-            
+
             previous_timestamp = current_timestamp;
         });
-
 
         // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
         if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(element, this.initial_CSS_properties_values, 100)); }
         
-        
-            // debug
-            // console.log("\nTimestamps:", timestamps);
         
         return timestamp_functions;
 
