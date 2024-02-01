@@ -57,13 +57,16 @@ class KeyframeAnimation
     }
 
 
+
     getTimestampFunctions(animation_duration)
     {
         const timestamps = [0];
         var timestamp_index = 0;
         var current_timestamp = timestamps[timestamp_index];
+        var previous_timestamp = current_timestamp;
+        var transition_duration = 0;
 
-        const dom_element = this.element;
+        const element = this.element;
         const element_CSS_proprieties = getComputedStyle(this.element);
         const changed_properties = [];
 
@@ -81,20 +84,30 @@ class KeyframeAnimation
             else if(accepted_values[2].test(key))
             {
                 let percentage = key.match(/\d{1,3}/)[0];
-                if(percentage <= 100 && percentage > 0)
+                if(percentage <= 100 && percentage >= 0)
                 {return Math.floor(animation_duration * (percentage/100));}
     
-                else {return}
+                else {return 0;} // Considering 
             }
             else{return}
         }
 
 
+        let timer_test = 0;
         // Factory functions
         // These functions serve for organization purpose.
-        function newStyleAttribFunction(element, p, v){return ()=>{element.style.setProperty(p, v)}}
-        function newTimeoutFunction(property_change_functions, timer)
-        {return () => setTimeout(() => { for(let change of property_change_functions){ change(); } }, timer);}
+        function newStyleAttribFunction(element, p, v){return ()=>{element.style.setProperty(p, v);}}
+        
+        function newTimeoutFunction(property_change_functions, timer = 100)
+        {
+                // debug
+                // timer_test++;
+                // console.log(`\nFunção ${timer_test} programada com timer de ${timer}ms.`);
+                // console.log(`Função ${timer_test} deve ocorrer de ${timer}ms até ${timer+transition_duration}ms.`);
+            
+            return () => setTimeout(() => { console.log("executando função"); for(let change of property_change_functions){ change(); } }, timer);
+        }
+        
         function restoreInitialStateFunction(element, original_states, timer)
         {
             return function(transition_duration)
@@ -107,45 +120,66 @@ class KeyframeAnimation
             }
         }
 
-
-        // Operations related to each timestamp|propriety map pair
+        // Operations related to each timestamp|propriety-map pair.
         this.keyframes.forEach((property_array, timestamp) =>
         {
-            timestamps.push(getTimestamps(timestamp)); // Adds the current timestamp to the `timestamps` array.
 
             // Array of style attribution functions
             const property_change_functions = [];
-            property_change_functions.push(newStyleAttribFunction(dom_element, 'transition-duration', `${timestamps[timestamp_index+1]-current_timestamp}ms`));
-            
 
-                // Operations related to each propriety|value pair
-                property_array.forEach((value, property) =>
-                {
-                    property_change_functions.push(newStyleAttribFunction(dom_element, property, value));
-                    
-                    // Stores up initial values for changed properties.
-                    if(!(property in changed_properties))
-                    {this.initial_CSS_properties_values.set(property, element_CSS_proprieties.getPropertyValue(`${property}`));}
-                    else{changed_properties.push(property)}  
-                });
-
-
-            // Pushes new timeout function to be executed in the animation loop.
-            // Executes as a setTimeout() function.
-            timestamp_functions.push(newTimeoutFunction(property_change_functions, timestamps[timestamp_index]));
+            // Adds the current timestamp to the `timestamps` array.
+            timestamps.push(getTimestamps(timestamp)); 
             
             // Updates current timestamp index and value.
             timestamp_index++;
             current_timestamp = timestamps[timestamp_index];
+            transition_duration = current_timestamp - previous_timestamp;
+
+
+            // Set 'transition-duration' property value for the current timestamp changes;
+            // Based on timestamp time value.
+            property_change_functions.push(newStyleAttribFunction(element, 'transition-duration', transition_duration+"ms"));
+
+            // Property change operations related to each 'propriety|value' pair
+            property_array.forEach((value, property) =>
+            {
+                // Set property/value change to the current timestamp
+                property_change_functions.push(newStyleAttribFunction(element, property, value));
+                
+
+                // Stores up initial values for changed properties.
+                if(!(property in changed_properties))
+                {this.initial_CSS_properties_values.set(property, element_CSS_proprieties.getPropertyValue(`${property}`));}
+                else{changed_properties.push(property)}  
+            });
+
+
+            // Pushes a new timeout function to be executed in the animation loop;
+            // Executes as a setTimeout() function, looping through all property changes.
+            timestamp_functions.push(newTimeoutFunction(property_change_functions, previous_timestamp));
+            
+            
+                // debug
+                // console.log(`Transition duration: ${transition_duration}`);
+                // console.log(`Previous timestamp: ${previous_timestamp}.\nCurrent timestamp: ${current_timestamp}.\n`)
+            
+            previous_timestamp = current_timestamp;
         });
 
 
         // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
-        if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(dom_element, this.initial_CSS_properties_values, 100)); }
-
+        if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(element, this.initial_CSS_properties_values, 100)); }
+        
+        
+            // debug
+            // console.log("\nTimestamps:", timestamps);
         
         return timestamp_functions;
+
+
+        // TODO: Corrigir problema com o valor de 'transition-duration' no retorno à primeira função a partir da última.
     }
+
 
 
     getAnimationObject()
@@ -157,7 +191,12 @@ class KeyframeAnimation
         const timestamp_functions = this.timestamp_functions;
         const return_to_initial = timestamp_functions.pop();
 
-        
+        function executeTimestampFunctions()
+        {
+            for (let action of timestamp_functions)
+            {animations_IDs.push(action());}
+        }
+
         if(this.is_infinite)
         {
             return {
@@ -167,12 +206,11 @@ class KeyframeAnimation
                 {
                     if(animation_interval_ID){return;}
 
-                    for(let action of timestamp_functions){animations_IDs.push(action())}
-                    console.log(animations_IDs);
+                    executeTimestampFunctions();
 
                     animation_interval_ID = setInterval(()=>
                     {
-                        for(let action of timestamp_functions){action()}
+                        executeTimestampFunctions();
                     }, animation_duration);
                 },
 
@@ -210,139 +248,3 @@ class KeyframeAnimation
     }
 
 }
-
-// getAnimationFunction(animation_duration)
-// {
-//     const timestamps = [0];
-//     var timestamp_index = 0;
-//     var current_timestamp = timestamps[timestamp_index];
-
-//     const dom_element = this.element;
-//     const element_CSS_proprieties = getComputedStyle(this.element);
-//     const changed_properties = [];
-
-//     // Time tracked functions to be executed each animation loop in their respective time
-//     const timestamp_timer_functions = [];
-
-    
-//     // Function to get the real values in milliseconds of each timestamp mark string.
-//     function getTimestamps(key)
-//     {
-//         const accepted_values = [/^from$/, /^to$/, /^\d{1,3}%$/];
-
-//         if(accepted_values[0].test(key)){return 0}
-//         else if(accepted_values[1].test(key)){return this.animation_duration}
-//         else if(accepted_values[2].test(key))
-//         {
-//             let percentage = key.match(/\d{1,3}/)[0];
-//             if(percentage <= 100 && percentage > 0)
-//             {return Math.floor(animation_duration * (percentage/100));}
-
-//             else {return}
-//         }
-//         else{return}
-//     }
-
-
-//     // Factory functions
-//     // These functions are for organization issues.
-//     function newStyleAttribFunction(element, p, v){return ()=>{element.style.setProperty(p, v)}}
-    
-//     function newTimeoutFunction(property_change_functions, timer)
-//     {return () => {setTimeout(() => { for(let change of property_change_functions){ change(); } }, timer);}}
-    
-//     function restoreInitialStateFunction(element, original_states, timer)
-//     {
-//         return function()
-//         {
-//             setTimeout(()=>{
-//                 element.style.setProperty('transition-duration', '10ms');
-//                 original_states.forEach
-//                 ((value, property) => {console.log(property+": ", value); element.style.setProperty(property, value)});
-//             }, timer);
-//         }
-//     }
-
-
-
-//     // Operations related to each timestamp|propriety map pair
-//     this.keyframes.forEach((property_array, timestamp) =>
-//     {
-//         timestamps.push(getTimestamps(timestamp)); // Adds the current timestamp to the `timestamps` array.
-
-//         // Array of style attribution functions
-//         const property_change_functions = [];
-//         property_change_functions.push(newStyleAttribFunction(dom_element, 'transition-duration', `${timestamps[timestamp_index+1]-current_timestamp}ms`));
-        
-
-//             // Operations related to each propriety|value pair
-//             property_array.forEach((value, property) =>
-//             {
-//                 property_change_functions.push(newStyleAttribFunction(dom_element, property, value));
-                
-//                 // Stores up initial values for changed properties.
-//                 if(!(property in changed_properties))
-//                 {this.initial_CSS_properties_values.set(property, element_CSS_proprieties.getPropertyValue(`${property}`));}
-//                 else{changed_properties.push(property)}  
-//             });
-
-
-//         // Pushes new timeout function to be executed in the animation loop.
-//         // Executes as a setTimeout() function.
-//         timestamp_timer_functions.push(newTimeoutFunction(property_change_functions, timestamps[timestamp_index]));
-        
-//         // Updates current timestamp index and value.
-//         timestamp_index++;
-//         current_timestamp = timestamps[timestamp_index];
-//     });
-
-    
-//     // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
-//     if(this.repeat_initial_state){ timestamp_timer_functions.push(restoreInitialStateFunction(dom_element, this.initial_CSS_properties_values, current_timestamp)); }
-
-//     if (this.is_infinite)
-//     {
-//         return function()
-//         {
-//             for(let action of timestamp_timer_functions){action()}
-//             // return setInterval(()=>
-//             this.animation_ID = setInterval(()=>
-//             {
-//                 for(let action of timestamp_timer_functions){action()}
-//             }, current_timestamp);
-//         }
-//     }
-    
-
-//     else
-//     {
-//         return function(iteration_count)
-//         {
-//             let i = 0;
-//             // console.log(timestamp_timer_functions);
-//             for(; i < iteration_count; i++)
-//             {
-//                 console.log(current_timestamp)
-//                 setTimeout(()=>{for(let action of timestamp_timer_functions){action()}}, current_timestamp*i);
-//             }
-//             // setTimeout(()=>{}, current_timestamp*i);
-//         }
-//     }
-
-// }
-
-
-// getAnimationStop()
-// {
-//     return function()
-//     {
-//         try
-//         {
-//             console.log(clearInterval(this.animation_ID));
-//             this.animation_ID = undefined;
-//         }
-
-//         catch(err)
-//         {console.error(err);}
-//     }
-// }

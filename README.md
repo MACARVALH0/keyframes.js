@@ -28,16 +28,16 @@
 
 <p><b>Especificação dos métodos:</b></p>
 
-**`start()`**: Inicia o loop de animação, que se repete indefinidamente, até que a função `finish()` seja chamada.<br>
-**`finish()`**: Encerra o loop de animação.<br>
+<b><code>start()</code></b>: Inicia o loop de animação, que se repete indefinidamente, até que a função <code>finish()</code> seja chamada.<br>
+<b><code>finish(<i>transition_duration</i>)</code></b>: Encerra o loop de animação. O parâmetro `transition_duration` define a duração da transição do estado corrente da animação para o estado inicial. Por padrão, `transition_duration` assume o valor `100`, caso não seja especificado.<br>
 <br>
-**`play(iteration_count)`**: Inicia o loop de animação com um parâmetro `iteration_count` do tipo inteiro, apontando o número de vezes que o loop deve se repetir. Caso `iteration_count` não seja especificado, assume o valor `1` como padrão.<br>
+<b><code>play(<i>iteration_count</i>)</code></b>: Inicia o loop de animação com um parâmetro `iteration_count` do tipo inteiro, apontando o número de vezes que o loop deve se repetir. Caso `iteration_count` não seja especificado, assume o valor `1` como padrão.<br>
 
 <br>
 <h2>Objeto de Keyframe</h2>
 <p>
   O <b>objeto de keyframes</b> descreve a estrutura lógica da animação em um modelo similar ao nativo na linguagem CSS. A forma como é escrito, no entanto, se assemelha muito ao formato de JSON, uma vez que usa diretamente características típicas da notação de objetos em JavaScript.
-  No objeto, tanto as marcações de tempo quanto nomes de propriedade e seus respectivos valores são strings, como no exemplo a seguir: <br>
+  No objeto, tanto as marcações de tempo quanto nomes de propriedade e seus respectivos valores são strings, como no exemplo a seguir:<br>
   
 ```javascript
 keyframe_obj_example =
