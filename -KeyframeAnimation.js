@@ -157,11 +157,7 @@ class KeyframeAnimation
         // Adds a last function to retrieve the element initial values, if `this.repeat_initial_state` is true
         if(this.repeat_initial_state){ timestamp_functions.push(restoreInitialStateFunction(element, this.initial_CSS_properties_values, 100)); }
         
-        
         return timestamp_functions;
-
-
-        // TODO: Corrigir problema com o valor de 'transition-duration' no retorno à primeira função a partir da última.
     }
 
 
