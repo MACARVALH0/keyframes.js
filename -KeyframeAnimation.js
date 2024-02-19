@@ -46,7 +46,6 @@ class KeyframeAnimation
         const map = new Map();
 
         const accepted_key = accepted_expression;
-        // console.log(accepted_expr);
 
         for(const obj_key in obj)
         {
@@ -56,37 +55,6 @@ class KeyframeAnimation
 
         return map;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -119,7 +87,7 @@ class KeyframeAnimation
                 let percentage = key.match(/\d{1,3}/)[0];
                 if(percentage <= 100 && percentage >= 0)
                 {return Math.floor(animation_duration * (percentage/100));}
-    
+
                 else {return min;}
             }
             else{return}
@@ -133,6 +101,21 @@ class KeyframeAnimation
 
         function newAnimationFunction(property_change_functions)
         {return ()=> {for(let change of property_change_functions){change()}}}
+
+        function toDefault(element, property_change_functions)
+        {
+            /*
+                Provides a function similar to `newAnimationFunction` with a new `timer` parameter which will define
+                how long the animation of "return to default" will take.
+                This must always be the last animation function, once it cannot (or shouldn't) be overthrown.
+                If no timer is provided, it will run as the standard `newAnimationFunction`, once its time reaches.
+            */
+            return (timer)=>
+            {
+                for(let change of property_change_functions){change();}
+                element.style.setProperty("transition-duration", `${timer || 0}ms`);
+            }
+        }
         
 
 
@@ -160,7 +143,7 @@ class KeyframeAnimation
             property_array.forEach((value, property) =>
             {
                 // If the property is forbidden to change, jump this iteration.
-                if(forbidden_properties.includes(properties)){return}
+                if(forbidden_properties.includes(property)){return}
 
                 // Set property/value change to the current timestamp
                 property_change_functions.push(newStyleAttribFunction(element, property, value));
@@ -176,72 +159,17 @@ class KeyframeAnimation
             previous_timestamp = current_timestamp;
         });
         
-
         
-        // Working on this... it will probably look better in the future.
-        {
-            const to_default_animation = [];
-            this.initial_CSS_properties_values.forEach((value, property) =>
-            {to_default_animation.push(newStyleAttribFunction(element, property, value));})
+        // Sets up the "return to default" animation as the last one, retrieving all the element proprieties their initial value.
+        const to_default_animation = [];
+        this.initial_CSS_properties_values.forEach((value, property) =>
+        {to_default_animation.push(newStyleAttribFunction(element, property, value));})
 
-            function toDefault(element, property_change_functions)
-            {
-                /*
-                    Essa função é especial porque retorna uma outra função de execução de parâmetros,
-                    porém com um timer de quanto tempo deve durar essa transição. Só deve ser aplicada
-                    à ultima função de animação, porque adiciona uma função especial de 'transition-duration';
-                */
-                return (timer)=>
-                {
-                    for(let change of property_change_functions){change();}
-                    element.style.setProperty("transition-duration", `${timer || 0}ms`);
-                }
-            }
-
-            animations.push({animation: toDefault(element, to_default_animation), duration: 1});
-        }
+        animations.push({animation: toDefault(element, to_default_animation), duration: 1});
 
 
         return animations;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -333,77 +261,7 @@ class KeyframeAnimation
                 }
             }
         }
+
     }
 
 }
-
-
-
-
-
-
-////////// trash can //////////
-
-
-        // const animation_duration = this.animation_duration;
-        // var animation_interval_ID;
-        // var animations_IDs = [];
-
-
-        // const timestamp_functions = this.timestamp_functions;
-        // const return_to_initial = timestamp_functions.pop();
-
-        // function executeTimestampFunctions()
-        // {
-        //     for (let action of timestamp_functions)
-        //     {
-        //         func_num++;
-        //         performance.mark(`start ${func_num}`);
-        //         console.log(`\n\nExecutando função ${func_num};`);
-
-        //             /// Actual execution.
-        //             animations_IDs.push(action());
-
-
-        //         performance.mark(`end ${func_num}`);
-        //         const measure = performance.measure(`runtime ${func_num}`, `start ${func_num}`, `end ${func_num}`);
-        //         console.log(`Função ${func_num} executada em ${measure.duration}ms.`);
-        //     }
-        // }
-
-
-        // start: function()
-        // {
-        //     /*
-        //         Teste: Usar performance.mark() e performance.measure() para calcular o tempo decorrido em cada
-        //         transição de estilo, de modo a compensá-lo no próximo setTimeout, para a animação seguinte.
-        //     */
-        //     requestAnimationFrame(executeTimestampFunctions);
-
-        //     // if(animation_interval_ID){return;}
-
-        //     // executeTimestampFunctions();
-
-        //     // animation_interval_ID = setInterval(()=>
-        //     // {
-        //     //     executeTimestampFunctions();
-        //     // }, animation_duration);
-        // },
-
-        // finish:
-        // function(transition_duration)
-        // {
-        //     if(animation_interval_ID)
-        //     {
-        //         clearInterval(animation_interval_ID);
-        //         for(let id of animations_IDs){clearTimeout(id);}
-
-        //         // Cleans registers for both `setInterval` and `setTimeout` functions respective IDs
-        //         animation_interval_ID = undefined;
-        //         animations_IDs = [];
-
-        //         return_to_initial(transition_duration || 100);
-        //     }
-
-        //     else{return;}
-        // }
