@@ -24,11 +24,11 @@ class KeyframeAnimation
         // TODO: Maybe. Allow animation object to be created without having necessarily a keyframe structure object, or having an empty one.
         
         this.initial_CSS_properties_values = new Map();
-        this.repeat_initial_state = params.repeat_initial_state;
+        this.repeat_initial_state = params.repeat_initial_state ?? true;
         // TODO: Maybe. Set when the original state should be restored, something like below:
         // this.repeat_initial_state = params.repeat_initial_state && ['end', 'always', 'none'].includes(params.repeat_initial_state) ? params.repeat_initial_state : 'end';
 
-        this.return_to_initial_state = params.return_to_initial;
+        this.return_to_initial_state = params.return_to_initial ?? true;
 
         this.is_infinite = params.is_infinite || false;
         this.animation_duration = parseInt(params.animation_duration) || 2000;
