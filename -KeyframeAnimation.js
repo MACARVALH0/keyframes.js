@@ -24,9 +24,11 @@ class KeyframeAnimation
         // TODO: Maybe. Allow animation object to be created without having necessarily a keyframe structure object, or having an empty one.
         
         this.initial_CSS_properties_values = new Map();
-        this.repeat_initial_state = params.repeat_initial_state || true;
+        this.repeat_initial_state = params.repeat_initial_state;
         // TODO: Maybe. Set when the original state should be restored, something like below:
         // this.repeat_initial_state = params.repeat_initial_state && ['end', 'always', 'none'].includes(params.repeat_initial_state) ? params.repeat_initial_state : 'end';
+
+        this.return_to_initial_state = params.return_to_initial;
 
         this.is_infinite = params.is_infinite || false;
         this.animation_duration = parseInt(params.animation_duration) || 2000;
@@ -175,9 +177,12 @@ class KeyframeAnimation
 
     getAnimationObject()
     {
+        console.log(this.repeat_initial_state);
         const animations = this.animations;
-        const {animation: returnToInitialState} = animations[animations.length-1];
+        const {animation: returnToInitialState} = this.repeat_initial_state ? animations[animations.length-1] : animations.pop();
         var animation_ID;
+
+        const rtis = this.return_to_initial_state; console.log(rtis);
 
 
         function animate(iteration_count)
@@ -236,13 +241,14 @@ class KeyframeAnimation
         {
             return {
 
-                start: function(){ animate(); },
+                start: function(){ if(animation_ID){return}; animate(); },
 
                 finish:
                 function(transition_duration)
                 {
                     if(!animation_ID){return}
-                    returnToInitialState(transition_duration);
+
+                    if(rtis){returnToInitialState(transition_duration)};
                     cancelAnimationFrame(animation_ID);
                     animation_ID = undefined;
                 }
